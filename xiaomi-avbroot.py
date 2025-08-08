@@ -159,6 +159,17 @@ def sparse_unpack(input_image: Path, output_image: Path, preserve=True):
     ])
 
 
+def sparse_pack(input_image: Path, output_image: Path):
+    status(f'Packing sparse image: {input_image} -> {output_image}')
+
+    subprocess.check_call([
+        'avbroot', 'sparse', 'pack',
+        '--quiet',
+        '--input', input_image,
+        '--output', output_image,
+    ])
+
+
 def lp_unpack(input_image: Path, output_dir: Path):
     status(f'Unpacking LP image: {input_image} -> {output_dir}')
 
@@ -428,6 +439,10 @@ def pack_subcommand(input_dir: Path, output_dir: Path, avb_key: Path):
                 raise ValueError(f'Unknown LP partition name: {lp_name}')
 
     lp_pack(super_dir, super_image)
+
+    super_sparse_image = output_dir / 'super.sparse.img'
+    sparse_pack(super_image, super_sparse_image)
+    super_sparse_image.rename(super_image)
 
     shutil.rmtree(super_dir)
 
